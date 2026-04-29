@@ -166,38 +166,94 @@ h1{
 <div class="whats">💬</div>
 
 <script>
-/* DADOS DO USUÁRIO */
+/* =========================
+   DADOS DO USUÁRIO
+========================= */
 const dados = JSON.parse(localStorage.getItem("dadosUsuario")) || {};
+
+const peso = parseFloat(dados.peso) || 70;
 const objetivo = dados.objetivo || "manter";
+const tempo = dados.tempo || "1h";
+const disposicao = dados.disposicao || "Média";
 
-/* DIETAS */
-const dietas = {
-  emagrecer:[
-    {titulo:"Café da manhã",desc:"Ovos + aveia + café sem açúcar"},
-    {titulo:"Almoço",desc:"Frango grelhado + arroz integral + salada"},
-    {titulo:"Lanche",desc:"Iogurte + frutas"},
-    {titulo:"Jantar",desc:"Carne magra + legumes"}
-  ],
+/* =========================
+   LÓGICA INTELIGENTE
+========================= */
 
-  hipertrofia:[
-    {titulo:"Café da manhã",desc:"Ovos + pão integral + vitamina de banana"},
-    {titulo:"Almoço",desc:"Arroz + feijão + carne + batata"},
-    {titulo:"Lanche",desc:"Whey + pasta de amendoim"},
-    {titulo:"Jantar",desc:"Frango + macarrão + legumes"}
-  ],
+// quantidade de proteína baseada no objetivo
+let proteinaBase = 0;
 
-  manter:[
-    {titulo:"Café da manhã",desc:"Pão integral + ovos + café"},
-    {titulo:"Almoço",desc:"Comida equilibrada"},
-    {titulo:"Lanche",desc:"Frutas"},
-    {titulo:"Jantar",desc:"Leve e saudável"}
-  ]
-};
+if(objetivo === "hipertrofia") proteinaBase = 2.2;
+if(objetivo === "emagrecer") proteinaBase = 1.8;
+if(objetivo === "manter") proteinaBase = 1.5;
 
-/* RENDER */
+// ajuste por disposição
+if(disposicao === "Alta") proteinaBase += 0.2;
+if(disposicao === "Baixa") proteinaBase -= 0.2;
+
+// cálculo final
+const proteinaTotal = Math.round(peso * proteinaBase);
+
+/* ajuste de carboidrato */
+let carbNivel = "moderado";
+
+if(objetivo === "hipertrofia") carbNivel = "alto";
+if(objetivo === "emagrecer") carbNivel = "baixo";
+
+if(tempo === "2h+") carbNivel = "alto";
+if(tempo === "30min" && objetivo !== "hipertrofia") carbNivel = "baixo";
+
+/* =========================
+   DIETA DINÂMICA
+========================= */
+
+function gerarDieta(){
+  return [
+    {
+      titulo:"Café da manhã",
+      desc:`
+      ${proteinaTotal/4}g proteína → ovos
+      + carbo ${carbNivel === "alto" ? "alto (aveia + banana)" : "controlado"}
+      + café sem açúcar
+      `
+    },
+
+    {
+      titulo:"Almoço",
+      desc:`
+      Proteína forte (frango/carne)
+      + carbo ${carbNivel}
+      + legumes e salada
+      `
+    },
+
+    {
+      titulo:"Lanche",
+      desc:`
+      ${disposicao === "Alta" ? "Whey + banana + aveia" : "Iogurte + frutas"}
+      `
+    },
+
+    {
+      titulo:"Jantar",
+      desc:`
+      ${objetivo === "emagrecer" ? "baixo carbo + proteína leve" :
+        objetivo === "hipertrofia" ? "refeição completa com carbo" :
+        "refeição equilibrada"}
+      `
+    }
+  ];
+}
+
+/* =========================
+   RENDER
+========================= */
+
 const container = document.getElementById("dietContent");
 
-dietas[objetivo].forEach((item)=>{
+const dietaFinal = gerarDieta();
+
+dietaFinal.forEach((item)=>{
   container.innerHTML += `
     <div class="card">
       <h3>${item.titulo}</h3>
@@ -206,7 +262,10 @@ dietas[objetivo].forEach((item)=>{
   `;
 });
 
-/* SCROLL REVEAL */
+/* =========================
+   SCROLL REVEAL
+========================= */
+
 const observer = new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
     if(entry.isIntersecting){
@@ -220,11 +279,22 @@ document.querySelectorAll(".card").forEach((el, i)=>{
   observer.observe(el);
 });
 
-/* WHATSAPP */
+/* =========================
+   WHATSAPP PERSONALIZADO
+========================= */
+
 const numero = "5567999999999"; // TROCAR
 
 const msg = encodeURIComponent(
-  `Olá! Fiz a dieta no site e quero acompanhamento.\n\nObjetivo: ${objetivo}`
+`Olá! Fiz minha dieta no site.
+
+📊 Dados:
+Peso: ${peso}kg
+Objetivo: ${objetivo}
+Tempo: ${tempo}
+Disposição: ${disposicao}
+
+Quero acompanhamento profissional.`
 );
 
 document.getElementById("whatsBtn").href =
