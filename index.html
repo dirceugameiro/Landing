@@ -70,7 +70,7 @@ nav{
 
 .nav-links a:hover{ color:var(--white); }
 
-/* BUTTON */
+
 .btn{
   background:var(--lime);
   color:#080a0e;
@@ -97,7 +97,7 @@ nav{
 
 .btn:hover::after{ left:100%; }
 
-/* HERO */
+
 .hero{
   height:100vh;
   display:flex;
@@ -122,7 +122,7 @@ nav{
   max-width:400px;
 }
 
-/* SECTION */
+
 .section{
   padding:100px 60px;
 }
@@ -138,7 +138,7 @@ nav{
   margin-bottom:40px;
 }
 
-/* CARDS */
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -157,7 +157,7 @@ nav{
   border-color:var(--lime-border);
 }
 
-/* PLANS */
+
 .plan{
   background:rgba(8,10,14,0.85);
   border:1px solid var(--line);
@@ -189,7 +189,7 @@ nav{
   font-size:60px;
 }
 
-/* FOOTER */
+
 footer{
   padding:40px;
   text-align:center;
@@ -197,7 +197,7 @@ footer{
   color:var(--muted);
 }
 
-/* WHATS */
+
 .whats{
   position:fixed;
   bottom:20px;
@@ -265,24 +265,8 @@ footer{
   bottom:10px;
 }
 
-/* OVERLAY ESCURO */
-.menu-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(6px);
-  opacity:0;
-  pointer-events:none;
-  transition:.4s;
-  z-index:999;
-}
 
-.menu-overlay.active{
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* RESPONSIVO */
+/* Celular/tablet */
 @media(max-width:768px){
 
   nav{
@@ -362,6 +346,7 @@ footer{
   <span></span>
 </div>
 </nav>
+
 
 <section class="hero">
   <div>
@@ -473,22 +458,29 @@ window.addEventListener("load",()=>{
 <script>
 const menuToggle = document.getElementById("menuToggle");
 const navLinks = document.querySelector(".nav-links");
-const overlay = document.getElementById("menuOverlay");
 
 function toggleMenu(){
   menuToggle.classList.toggle("active");
   navLinks.classList.toggle("active");
-  overlay.classList.toggle("active");
+}
+
+function closeMenu(){
+  menuToggle.classList.remove("active");
+  navLinks.classList.remove("active");
 }
 
 menuToggle.addEventListener("click", toggleMenu);
-overlay.addEventListener("click", toggleMenu);
 
-// FECHAR AO CLICAR EM LINK
+
 document.querySelectorAll(".nav-links a").forEach(link=>{
-  link.addEventListener("click", ()=>{
-    toggleMenu();
-  });
+  link.addEventListener("click", closeMenu);
+});
+
+
+document.addEventListener("click", (e)=>{
+  if(!navLinks.contains(e.target) && !menuToggle.contains(e.target)){
+    closeMenu();
+  }
 });
 </script>
 
